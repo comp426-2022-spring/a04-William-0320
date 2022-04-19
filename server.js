@@ -167,6 +167,12 @@ if (args.help || args.h) {
 // Require better-sqlite.
 const Database = require('better-sqlite3');
 
+//Connect to a db or create one if not exist yet
+const db = new Database('log.db');
+
+
+
+
 // Default response for any other request
 app.use(function(req, res){
   res.type("text/plain");
