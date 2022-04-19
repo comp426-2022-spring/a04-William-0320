@@ -162,6 +162,10 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+const fs = require("fs");
+
+const morgan = require("morgan");
+
 // If --log=false then do not create a log file
 if (args.log == 'false') {
   console.log("NOTICE: not creating file access.log")
@@ -173,10 +177,6 @@ if (args.log == 'false') {
   app.use(morgan('combined', { stream: accessLog }))
 }
 
-
-const fs = require("fs");
-
-const morgan = require("morgan");
 // Make express use its own built-in body parser
 app.use(express.urlencoded({extended: true}));
 
@@ -196,19 +196,21 @@ app.use((req, res, next) => {
     referrer: req.headers['referrer'],
     useragent: req.headers['user-agent']
   };
-  const stmt = db.prepare('INSERT into accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  const stmt = db.prepare('INSERT into accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referrer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
   const info = stmt.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referrer, logdata.useragent);
   console.log(info);
   next();
 })
 
 if(args.debug || args.d){
-  app.get('/app/log/access', (req, res) => {
+  app.get('/app/log/access', (req, res, next) => {
     const stmt = db.prepare('SELECT * from accesslog').all();
     res.status(200).json(stmt);
   });
 
-  
+  app.get('/app/error', (req, res, next) =>{
+    throw new Error("Error test successful.");
+  });
 }
 
 // Default response for any other request
@@ -217,3 +219,9 @@ app.use(function(req, res){
   res.status(404).send("404 Not Found");
 });
 
+// Tell STDOUT that the server is stopped
+process.on('SIGINT', () => {
+  server.close(() => {
+  console.log('\nApp stopped.');
+});
+});
