@@ -162,6 +162,11 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+// This ensures that things do not fail silently but will throw errors instead.
+"use strict";
+// Require better-sqlite.
+const Database = require('better-sqlite3');
+
 // Default response for any other request
 app.use(function(req, res){
   res.type("text/plain");
