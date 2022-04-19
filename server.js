@@ -162,6 +162,16 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
+// If --log=false then do not create a log file
+if (args.log == 'false') {
+  console.log("NOTICE: not creating file access.log")
+} else {
+// Use morgan for logging to files
+// Create a write stream to append to an access.log file
+  const accessLog = fs.createWriteStream('access.log', { flags: 'a' })
+// Set up the access logging middleware
+  app.use(morgan('combined', { stream: accessLog }))
+}
 
 
 const fs = require("fs");
@@ -169,6 +179,7 @@ const fs = require("fs");
 const morgan = require("morgan");
 // Make express use its own built-in body parser
 app.use(express.urlencoded({extended: true}));
+
 // Load the database
 const db = require('./database.js');
 // Add a new record
@@ -191,8 +202,9 @@ app.use((req, res, next) => {
   next();
 })
 
-
-
+app.get('/app/log/access', (req, res) => {
+  
+})
 // Default response for any other request
 app.use(function(req, res){
   res.type("text/plain");
