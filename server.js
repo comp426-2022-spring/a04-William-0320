@@ -202,9 +202,15 @@ app.use((req, res, next) => {
   next();
 })
 
-app.get('/app/log/access', (req, res) => {
+if(args.debug || args.d){
+  app.get('/app/log/access', (req, res) => {
+    const stmt = db.prepare('SELECT * from accesslog').all();
+    res.status(200).json(stmt);
+  });
+
   
-})
+}
+
 // Default response for any other request
 app.use(function(req, res){
   res.type("text/plain");
