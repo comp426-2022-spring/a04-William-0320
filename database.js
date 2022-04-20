@@ -10,9 +10,10 @@ const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' and n
 let row = stmt.get();
 if(row === undefined){
     console.log("Database appears to be empty. Initializing now...");
+
     const sqlInit = `
         CREATE TABLE accesslog(
-            id INTEGER PRIMARY KET,
+            id INTEGER PRIMARY KEY,
             remoteaddr TEXT,
             remoteuser TEXT,
             time TEXT,
@@ -25,6 +26,7 @@ if(row === undefined){
             useragent TEXT
         );
     `
+    
     db.exec(sqlInit);
 }else{
     console.log("Log database exists.");
